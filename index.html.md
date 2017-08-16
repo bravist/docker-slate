@@ -7,7 +7,6 @@ language_tabs:
   - java
 
 toc_footers:
-  - <a href='http://open.weipeiapp.com'>注册成为维配开发者</a>
   - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
@@ -23,16 +22,11 @@ search: true
 
 # 开发者授权
 
-1. 访问 <a href="http://open.weipeiapp.com/register">维配开发平台</a>， 注册维配开发者账户。
-2. 创建应用，获取应用`client_id`与`client_secret`。
-3. 使用OAuth2.0 密码开放授权模式获取`access_token`。
-4. `access_token` 默认有效时间为 1个月，之后需要使用`refresh_token` 去刷新令牌。
-
+维配开放平台会为每一个第三方应用提供`client_id` 与`client_secret`，第三方应用使用该参数调用 `获取令牌`接口获取`access_token`，默认过期时间为1个月，过期后，需要再次调用`获取令牌`接口得到新令牌。更多授权信息可以参考[微信公众平台](https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140183) 与 [理解OAuth2.0](http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html)。
 
 
 ## 获取令牌
 
-请先注册成为维配开放平台开发者，创建自己的应用，获取参数`client_id` 与 `client_secret`。开发者使用OAuth2.0 用户[密码授权模式](http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html)得到`access_token`。
 
 ### HTTP Request
 
@@ -42,11 +36,9 @@ search: true
 
 参数 | 默认值 | 描述
 --------- | ------- | -----------
-grant_type | password | 授权模式，当前仅支持password
+grant_type | client_credentials | 客户端授权模式
 client_id | 0 | 开发者应用ID
 client_secret | null | 开发者应用秘钥
-username | null | 开发者注册邮箱
-password | null | 开发者注册密码
 
 ### 返回参数
 
@@ -55,7 +47,6 @@ password | null | 开发者注册密码
 token_type | 令牌类型，默认: `Bearer`
 expires_in | `access_token` 过期时间，单位：秒，默认时间1个月
 access_token | 访问安全令牌，在`expires_in`秒内有效
-refresh_token | 刷新令牌，默认过期时间1年
 
 
 > 使用下面方式获取授权令牌
@@ -64,18 +55,17 @@ refresh_token | 刷新令牌，默认过期时间1年
 POST /oauth/token HTTP/1.1
 Host: open.weipeiapp.com
 
-grant_type=password&client_id=10&client_secret=8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq&username=chenghuiyong@weipei.cc&password=123456@a
+grant_type=client_credentials&client_id=1&client_secret=FbDWdEtxkRgAvxxgiNG2UPvT3MfdXM62MTNFQxrT
 ```
 
 ```shell
 
-curl --request POST \
-  --url http://open.weipeiapp.com/oauth/token \
-  --form grant_type=password \
-  --form client_id=10 \
-  --form client_secret=8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq \
-  --form username=chenghuiyong@weipei.cc \
-  --form password=123456@a
+curl -X POST \
+  http://open.weipeiapp.com/oauth/token \
+  -F grant_type=client_credentials \
+  -F client_id=1 \
+  -F client_secret=FbDWdEtxkRgAvxxgiNG2UPvT3MfdXM62MTNFQxrT
+
 ```
 
 ```java
@@ -83,11 +73,11 @@ curl --request POST \
 OkHttpClient client = new OkHttpClient();
 
 MediaType mediaType = MediaType.parse("multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
-RequestBody body = RequestBody.create(mediaType, "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"grant_type\"\r\n\r\npassword\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_id\"\r\n\r\n10\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_secret\"\r\n\r\n8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"username\"\r\n\r\nchenghuiyong@weipei.cc\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n123456@a\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--");
+RequestBody body = RequestBody.create(mediaType, "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"grant_type\"\r\n\r\nclient_credentials\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_id\"\r\n\r\n1\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_secret\"\r\n\r\nFbDWdEtxkRgAvxxgiNG2UPvT3MfdXM62MTNFQxrT\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--");
 Request request = new Request.Builder()
   .url("http://open.weipeiapp.com/oauth/token")
   .post(body)
-  .addHeader("accept", "application/vnd.logistic.v3+json")
+  .addHeader("content-type", "multipart/form-data;")
   .build();
 
 Response response = client.newCall(request).execute();
@@ -100,82 +90,9 @@ Response response = client.newCall(request).execute();
 {
     "token_type": "Bearer",
     "expires_in": 600,
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjE1ZWFhZWY4NjNlMjM4YzhmN2JiODdlNGM1NWY0Zjg4MTUxOTQ2M2ZmZWE3ZWM0YjVlN2NkNGExM2Q0MGE2ZWQ2MWQxNmRjZDg4MzM4ODBlIn0.eyJhdWQiOiIxMCIsImp0aSI6IjE1ZWFhZWY4NjNlMjM4YzhmN2JiODdlNGM1NWY0Zjg4MTUxOTQ2M2ZmZWE3ZWM0YjVlN2NkNGExM2Q0MGE2ZWQ2MWQxNmRjZDg4MzM4ODBlIiwiaWF0IjoxNTAyNDIxNzU1LCJuYmYiOjE1MDI0MjE3NTUsImV4cCI6MTUwMjQyMjM1NSwic3ViIjoiMSIsInNjb3BlcyI6W119.PwtiECHEdiSsAEomq_utV1hLVL2b398ouvq3m-AWayntnQyTjX-UFbyVN_qdTSnm5W-0lmr51v0rW88eAyZKtDdr5z3oXlV9irF7FjWYNBICZghAarX_-0l1C5YMAAhYWtFNfdVbCUorOk-jTs2oTWweHePsth5bPZ-6SdsyQBsXBhEut5C-5LdA5q_WEr57C4MReTWtsYagsF5zAKdePaC9j7IPX5Mp1Ex2_o6QXv6RvMORGjtuNAm70b1e-RGjwylkE_OLRADuiblmqX5o6tR_cRYsK6JhaWsa6YDf8dPJy6gFxXer_KZSX-hMMTg1-EPsYU8eSYLEuDzQ7x_vBMVubuf-0cxmq16FHDXH5eHZfTSDOyumN4fL-oaKxSiGwQL7r0ytH5ryL02nMSRoK6ZVlR6zn0F2XjB9iUD4k-jNSXPB8WGTem6jRUpwsEoW-XTo2c3KwaCnAi5tu3LM-ugfQU2L24nNvQQ7w-OZcnHXtU-T9rezdF_2rvlLCB0MSKPem_BEuahSnFDY0fBkIMUuo8n_gRkplHuqD1ROrM7gUkVJa7uLlWnVT0etptwEPYHAXbg8aZ8iJBziMOZxRvf9BbdxfLPtCyfAoFDswinzd4DKbXrQuXUTZdhFDrNS19PG94Zn1901olIP_EpIwStsWv8XKjMXyJ1cI8GHFjo",
-    "refresh_token": "def50200f8b1c0dbd0f86ad6399deeb9a2c98eccde0aac7dce7e74e8e3864ee77258e83b83d269a311bc39fb688ba10c5ba5008132e35e976088ef40058998833a06b3cc3652b46446670515b03aa2f037e22f46fb4ceea3dabae42261342765e7127d5c79ee0ca6fc68d7b7b5ad4f54514c6ff6422e3837150edaba25141ab5f68260d2ed379625135ffaa8fba1f2a749e9c8bd5e442d60b0e6e1b4bd4029cf99e2109e1e6f7fe51e4ef0fa7f2ed7f10bb38c328a1378b7b69835c27fc71f1bf261280a8ede3c7e30cfe4df525441972496554720a43c60b3bd3d139fbd5083d60e54fa3778236697f1b0de414e283a70e784f6dccb0fb042faf196be1f151a387fe24c17f8c38dd5d2b889e4f844143689da16be5ff46101a4a66567c9b95bcd9c67f5d49617f3e59872854e0a2d868a0b22d9411cb7254da0e14c349011eb25d620f3adf0c8f3cb7efe5ce6b0fdeac96f695693b4febe6a176d03d7b5657b7eae"
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImM0YmM1NzA2NmRmZmRhMTJhNzQ0MGI3MDFlMDEwYzkyMWM1ZDFhY2E5OTAwOGI2ODU0ZjFjMjNiNmY5YzlkZDhmNGNmMzkzNTM3MTUwZDVhIn0.eyJhdWQiOiIxIiwianRpIjoiYzRiYzU3MDY2ZGZmZGExMmE3NDQwYjcwMWUwMTBjOTIxYzVkMWFjYTk5MDA4YjY4NTRmMWMyM2I2ZjljOWRkOGY0Y2YzOTM1MzcxNTBkNWEiLCJpYXQiOjE1MDI4NTY3NjEsIm5iZiI6MTUwMjg1Njc2MSwiZXhwIjoxNTAyODU3MzYxLCJzdWIiOiIiLCJzY29wZXMiOltdfQ.2xFBCC0JLJwsVf6ZjVLL8Dyp_0Sn6RAWUX19IRbOvY446m-VUH6Iozraij6cwvHIPd3cZydL2KhWj4lDWE1kgn5sw6A5cLUJHJ4916yluVXeHuLNU8QDLBsjMWPzkz3RwpL2UQcX9ukJOoJTBpbmiwtcvBHcN-aZAoSQTk83B5YUtkR8iHoM0OrHlJ5INC_blkubLl5YvFP7kdJSG2XsCdk2aZ21I9nWTn_b3L_qXQygeJy1bR-LWEBwOTS8wzBSCtbBA1_atnkzwe5Caxu5mhMlTQKZP9hwLP2aCZaIU5M-Bj3LXUsq4Sp6dN-Vpst4D8S4luKo_oeOsqKok-gGKtUbgXdCqnrOTaWH2ajndVvpYS__w9ghDZuDShGavZzi1qhF0w-FX25LOOICUi8yHIPv3y8Uwo84AyQatc5v18FYymiaV36CuKqWLkxWG1txRf32AfJd56wB6D20X6N3NJMhSvx6o6LvmPZmsLtywPd_iBBbbB128FbLjPivs8G0EnlCvv7W4h3CvCI6Iirr1UYGP2kWzaOGth9-3wFfZr1ty5MitZ5Crd7p7P_hzLeTfiTyu1xAAA2n0JyETSavhdeyFFKn7WgLH4hRNd7rGK6sUgjnM2gklpMxUcC9Sqko6MeqbiljL7GcYsRUZOqxuRxwP2fNXB9i1_QDZnlg3bI"
 }
 ```
-## 刷新令牌
-
-`access_token`过期后，需要使用`refresh_token`去获取一个新的`access_token`。
-
-### HTTP Request
-
-`POST http://open.weipeiapp.com/oauth/token`
-
-### 请求参数
-
-参数 | 默认值 | 描述
---------- | ------- | -----------
-grant_type | refresh_token | 刷新token类型
-client_id | 0 | 开发者应用ID
-client_secret | null | 开发者应用秘钥
-refresh_token | null | 过期的access_token
-
-### 返回参数
-
-响应参数 | 描述
---------- | -----------
-token_type | 令牌类型，默认: `Bearer`
-expires_in | `access_token` 过期时间，单位：秒，默认时间1个月
-access_token | 访问安全令牌，在`expires_in`秒内有效
-refresh_token | 刷新令牌，默认过期时间1年
-
-> 使用下面方式刷新令牌
-
-```http
-POST /oauth/token HTTP/1.1
-Host: open.weipeiapp.com
-
-grant_type=refresh_token&client_id=10&client_secret=8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq&refresh_token=def50200f8b1c0dbd0f86ad6399deeb9a2c98eccde0aac7dce7e74e8e3864ee77258e83b83d269a311bc39fb688ba10c5ba5008132e35e976088ef40058998833a06b3cc3652b46446670515b03aa2f037e22f46fb4ceea3dabae42261342765e7127d5c79ee0ca6fc68d7b7b5ad4f54514c6ff6422e3837150edaba25141ab5f68260d2ed379625135ffaa8fba1f2a749e9c8bd5e442d60b0e6e1b4bd4029cf99e2109e1e6f7fe51e4ef0fa7f2ed7f10bb38c328a1378b7b69835c27fc71f1bf261280a8ede3c7e30cfe4df525441972496554720a43c60b3bd3d139fbd5083d60e54fa3778236697f1b0de414e283a70e784f6dccb0fb042faf196be1f151a387fe24c17f8c38dd5d2b889e4f844143689da16be5ff46101a4a66567c9b95bcd9c67f5d49617f3e59872854e0a2d868a0b22d9411cb7254da0e14c349011eb25d620f3adf0c8f3cb7efe5ce6b0fdeac96f695693b4febe6a176d03d7b5657b7eae
-```
-
-```shell
-
-curl --request POST \
-  --url http://open.weipeiapp.com/oauth/token \
-  --form grant_type=refresh_token \
-  --form client_id=10 \
-  --form client_secret=8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq \
-  --form refresh_token=def50200f8b1c0dbd0f86ad6399deeb9a2c98eccde0aac7dce7e74e8e3864ee77258e83b83d269a311bc39fb688ba10c5ba5008132e35e976088ef40058998833a06b3cc3652b46446670515b03aa2f037e22f46fb4ceea3dabae42261342765e7127d5c79ee0ca6fc68d7b7b5ad4f54514c6ff6422e3837150edaba25141ab5f68260d2ed379625135ffaa8fba1f2a749e9c8bd5e442d60b0e6e1b4bd4029cf99e2109e1e6f7fe51e4ef0fa7f2ed7f10bb38c328a1378b7b69835c27fc71f1bf261280a8ede3c7e30cfe4df525441972496554720a43c60b3bd3d139fbd5083d60e54fa3778236697f1b0de414e283a70e784f6dccb0fb042faf196be1f151a387fe24c17f8c38dd5d2b889e4f844143689da16be5ff46101a4a66567c9b95bcd9c67f5d49617f3e59872854e0a2d868a0b22d9411cb7254da0e14c349011eb25d620f3adf0c8f3cb7efe5ce6b0fdeac96f695693b4febe6a176d03d7b5657b7eae
-```
-
-```java
-
-OkHttpClient client = new OkHttpClient();
-
-MediaType mediaType = MediaType.parse("multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
-RequestBody body = RequestBody.create(mediaType, "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"grant_type\"\r\n\r\npassword\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_id\"\r\n\r\n10\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"client_secret\"\r\n\r\n8ci3cE73SuYgslXwbyDo5dtXKAG54E5BGn116Vuq\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"username\"\r\n\r\nchenghuiyong@weipei.cc\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"password\"\r\n\r\n123456@a\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--");
-Request request = new Request.Builder()
-  .url("http://open.weipeiapp.com/oauth/token")
-  .post(body)
-  .addHeader("accept", "application/vnd.logistic.v3+json")
-  .build();
-
-Response response = client.newCall(request).execute();
-
-```
-
-> 接口返回JSON格式
-
-```json
-{
-    "token_type": "Bearer",
-    "expires_in": 600,
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjE1ZWFhZWY4NjNlMjM4YzhmN2JiODdlNGM1NWY0Zjg4MTUxOTQ2M2ZmZWE3ZWM0YjVlN2NkNGExM2Q0MGE2ZWQ2MWQxNmRjZDg4MzM4ODBlIn0.eyJhdWQiOiIxMCIsImp0aSI6IjE1ZWFhZWY4NjNlMjM4YzhmN2JiODdlNGM1NWY0Zjg4MTUxOTQ2M2ZmZWE3ZWM0YjVlN2NkNGExM2Q0MGE2ZWQ2MWQxNmRjZDg4MzM4ODBlIiwiaWF0IjoxNTAyNDIxNzU1LCJuYmYiOjE1MDI0MjE3NTUsImV4cCI6MTUwMjQyMjM1NSwic3ViIjoiMSIsInNjb3BlcyI6W119.PwtiECHEdiSsAEomq_utV1hLVL2b398ouvq3m-AWayntnQyTjX-UFbyVN_qdTSnm5W-0lmr51v0rW88eAyZKtDdr5z3oXlV9irF7FjWYNBICZghAarX_-0l1C5YMAAhYWtFNfdVbCUorOk-jTs2oTWweHePsth5bPZ-6SdsyQBsXBhEut5C-5LdA5q_WEr57C4MReTWtsYagsF5zAKdePaC9j7IPX5Mp1Ex2_o6QXv6RvMORGjtuNAm70b1e-RGjwylkE_OLRADuiblmqX5o6tR_cRYsK6JhaWsa6YDf8dPJy6gFxXer_KZSX-hMMTg1-EPsYU8eSYLEuDzQ7x_vBMVubuf-0cxmq16FHDXH5eHZfTSDOyumN4fL-oaKxSiGwQL7r0ytH5ryL02nMSRoK6ZVlR6zn0F2XjB9iUD4k-jNSXPB8WGTem6jRUpwsEoW-XTo2c3KwaCnAi5tu3LM-ugfQU2L24nNvQQ7w-OZcnHXtU-T9rezdF_2rvlLCB0MSKPem_BEuahSnFDY0fBkIMUuo8n_gRkplHuqD1ROrM7gUkVJa7uLlWnVT0etptwEPYHAXbg8aZ8iJBziMOZxRvf9BbdxfLPtCyfAoFDswinzd4DKbXrQuXUTZdhFDrNS19PG94Zn1901olIP_EpIwStsWv8XKjMXyJ1cI8GHFjo",
-    "refresh_token": "def50200f8b1c0dbd0f86ad6399deeb9a2c98eccde0aac7dce7e74e8e3864ee77258e83b83d269a311bc39fb688ba10c5ba5008132e35e976088ef40058998833a06b3cc3652b46446670515b03aa2f037e22f46fb4ceea3dabae42261342765e7127d5c79ee0ca6fc68d7b7b5ad4f54514c6ff6422e3837150edaba25141ab5f68260d2ed379625135ffaa8fba1f2a749e9c8bd5e442d60b0e6e1b4bd4029cf99e2109e1e6f7fe51e4ef0fa7f2ed7f10bb38c328a1378b7b69835c27fc71f1bf261280a8ede3c7e30cfe4df525441972496554720a43c60b3bd3d139fbd5083d60e54fa3778236697f1b0de414e283a70e784f6dccb0fb042faf196be1f151a387fe24c17f8c38dd5d2b889e4f844143689da16be5ff46101a4a66567c9b95bcd9c67f5d49617f3e59872854e0a2d868a0b22d9411cb7254da0e14c349011eb25d620f3adf0c8f3cb7efe5ce6b0fdeac96f695693b4febe6a176d03d7b5657b7eae"
-}
-```
-
 
 
 
