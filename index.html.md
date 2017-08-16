@@ -232,8 +232,8 @@ Response response = client.newCall(request).execute();
 
 参数 | 默认值 | 描述
 --------- | ------- | -----------
-start_date | false | 开始日期
-end_date | false | 结束日期
+start_date | 当天： 2017-08-16 | 开始日期
+end_date | 当天：2017-08-16 | 结束日期
 
 ### 返回参数
 
@@ -298,8 +298,8 @@ Response response = client.newCall(request).execute();
 
 参数 | 默认值 | 描述
 --------- | ------- | -----------
-start_date | false | 开始日期
-end_date | false | 结束日期
+start_date | 当天： 2017-08-16 | 开始日期
+end_date | 当天：2017-08-16 | 结束日期
 
 ### 返回参数
 
